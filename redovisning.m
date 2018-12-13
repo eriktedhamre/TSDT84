@@ -125,36 +125,63 @@ shg
 
 % Dela på lämpligt sätt in dina funktionsanrop i fler delceller, för enklare redovisning!
 
+%%
 % Uppgift 5a. 
 
 
 
 %% Uppgift 5b
-
-
-
+load uppgift5b
+pzchange(H1)
+%%
+pzchange(H2)
 %% Uppgift 5b
 
 
 
 %% Uppgift 5c
-
-
+load uppgift5c
+pzchange(H3)
 
 %% Uppgift 5d
-
-
+load uppgift5d
+pzchange(H4)
 
 %% Uppgift 5e
 
+[B, A] = butter(10, 2*pi*100, 'low', 's');
+pzchange(in(B,A, 's'))
 
-
+%%
+% 5 eller 6 poler
+[B, A] = cheby1(5,3,2*pi*100, 'low', 's')
+pzchange(in(B,A, 's'))
 %% Uppgift 5f
-
-
-
-
-
+load uppgift5f1
+pzchange(BP1)
+%%
+load dtmf
+%signal(toner)
+X = foutr(toner);
+Y = output(X, BP1);
+Yt = ifoutr(Y)
+%spect(X)
+figure(1);
+Xt=linspace(1, 65538,65537);
+subplot(2,1,1)
+plot(Xt, toner);
+subplot(2,1,2)
+plot(Xt, Yt)
+%%
+for i = 1:1:65537
+    if((i >= 32769) &&(i < 32769 + 1600))
+        Y1(i)=Y(i);
+    
+    else
+        Y1(i)=0;   
+    end
+end
+signal(Y1)
 
 %% 6. TIDSDOMÄNANALYS AV TIDSDISKRETA SIGNALER & SYSTEM
 
