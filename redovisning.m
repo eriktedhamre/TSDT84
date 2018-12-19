@@ -172,17 +172,6 @@ subplot(2,1,1)
 plot(Xt, toner);
 subplot(2,1,2)
 plot(Xt, Yt)
-%%
-for i = 1:1:65537
-    if((i >= 32769) &&(i < 32769 + 1600))
-        Y1(i)=Y(i);
-    
-    else
-        Y1(i)=0;   
-    end
-end
-signal(Y1)
-
 %% 6. TIDSDOMÄNANALYS AV TIDSDISKRETA SIGNALER & SYSTEM
 
 % Dela på lämpligt sätt in dina funktionsanrop i fler delceller, för enklare redovisning!
@@ -196,40 +185,125 @@ signal(Y1)
 
 
 %% Uppgift 6c
+%% ha
+n = -5:19;   % Anm: I boken st�r det (0:19), men fr�n -5 �r l�mpligare
+x = inline('n==0');     % = enhetsimpulsen
+a = [ 1 -1]; b = [0 1];
+h = filter(b,a,x(n));
+clf; stem(n,h,'k'); xlabel('n'); ylabel('h[n]');
 
+% Kausalt då  ha = 0 för n < 0
+% Marginellt stabil då den har en pol på enhetscirkeln
+%
+%% hb
+n = -5:19;   % Anm: I boken st�r det (0:19), men fr�n -5 �r l�mpligare
+x = inline('n==0');     % = enhetsimpulsen
+a = [1 -5 6]; b = [0 8 -19];
+h = filter(b,a,x(n));
+clf; stem(n,h,'k'); xlabel('n'); ylabel('h[n]');
 
+% Kausalt
+% Icke stabilt då Sum(abs(hb)) !< inf
+%
+%% hd
+n = -5:19;   % Anm: I boken st�r det (0:19), men fr�n -5 �r l�mpligare
+x = inline('n==0');     % = enhetsimpulsen
+a = [1 0]; b = [2 -2];
+h = filter(b,a,x(n));
+clf; stem(n,h,'k'); xlabel('n'); ylabel('h[n]');
 
+% Kausalt 
+% Stabilt då Sum(abs(hd)) < inf
+%
 %% Uppgift 6d
 
 
 
 %% Uppgift 6e
+%Tidsförskjutning modifierar inte signalen utan flyttar den bara
 
+% Faltning mellan x[n] och h[n]
+% Lasse Alfredsson 2012
+n=0:50;
+x=inline('2*(n>=5 & n<20)','n');    % x[n]=2(u[n-5]-u[n-20])    % Orignial
+h=inline('1*(n>=2 & n<10)','n');    % h[n]=u[n-2]-u[n-10]
+x2=inline('2*(n>=15 & n<30)','n');  % x2[n] = x[n-10]           % 5e
+subplot(2,1,1)
+stem(n,x2(n),'b');hold on, 
+stem(n,h(n),'r');hold off
+xlabel('n')
+title('x[n]  (bl�)  & h[n]  (r�d)')
 
+y=conv(x2(n),h(n));       % y[n]=x[n]*h[n]  (faltning)
+subplot(2,1,2) 
+stem(n,y(1:length(n)));  % Ty length(y) = length(x)+length(h)-1
+xlabel('n')
+title('y[n]')
+%%
+n=0:50;
+x=inline('cos((pi.*n)/6).*(n>=0)','n');         % x[n]=cos((pi/6)*n)*u[n]
+h=inline('1.5.*(.95.^n).*(n>=0 & n<11)','n');    % h[n]=1.5(0.95^n)(u[n]-u[n-11])
+subplot(2,1,1)
+stem(n,x(n),'b');hold on, 
+stem(n,h(n),'r');hold off
+xlabel('n')
+title('x[n]  (bl�)  & h[n]  (r�d)')
 
-
-
+y=conv(x(n),h(n));       % y[n]=x[n]*h[n]  (faltning)
+subplot(2,1,2) 
+stem(n,y(1:length(n)));  % Ty length(y) = length(x)+length(h)-1
+xlabel('n')
+title('y[n]')
 
 %% TIDSDISKRETA FREKVENSSELEKTIVA FILTER
 
 % Dela på lämpligt sätt in dina funktionsanrop i fler delceller, för enklare redovisning!
 
-% Uppgift 7a
+%% Uppgift 7a
 
-
-
+load uppgift7a
+pzchange(H1z)
 %% Uppgift 7b
-
-
-
+load uppgift7b
+pzchange(HA), pause, pzchange(HB)
 %% Uppgift 7c 
+[B, A]=butter(3,2*0.15, 'low');
+H=in(B,A, 'z');
+pzchange(H)
 
+%%
+[B, A]=butter(5,2*0.15, 'low');
+H=in(B,A, 'z');
+pzchange(H)
+%%
+[B, A] = cheby1(5,3,2*0.15, 'low')
+H=in(B,A, 'z');
+pzchange(H)
+%%
+[B, A]=butter(5,2*0.15, 'high');
+H=in(B,A, 'z');
+pzchange(H)
 
-
+%%
+[B, A] = cheby1(5,3,2*0.15, 'high')
+H=in(B,A, 'z');
+pzchange(H)
 %% Uppgift 7d
+load dtmf, T=toner(65537); Dtoner=[toner 0 0 0]; N=30;
+subplot(2,1,1), signalmod(toner,N*T);
+subplot(2,1,2), signalmod(Dtoner,N)
+%%
+TONER=foutr(toner); DTONER=foutr(Dtoner);
+spect(TONER,DTONER);
+subplot(2,1,1), axis([0 3200 0 2])
 
-
-
-
-
-
+%%
+[B, A] = cheby1(2,3,[2*pi*941, 2*pi*1209], 's')
+H1=in(B,A, 's');
+pzchange(H1)
+%%
+[B, A] = cheby1(2,3,[2*0.14703125, 2*0.18890625], 'z')
+H2=in(B,A, 'z');
+pzchange(H2)
+%%
+logspect(H1, H2);
